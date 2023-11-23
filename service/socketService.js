@@ -29,8 +29,8 @@ module.exports = (io, gameContext) => {
             .recover(gameContext.signatureMessage, receivedMessage.signature)
             .toLowerCase()
         ) {
-          await addBet(receivedMessage.address, receivedMessage.bet);
-          gameContext.currentBets.push(receivedMessage);
+          if (await addBet(receivedMessage.address, receivedMessage.bet))
+            gameContext.currentBets.push(receivedMessage);
         }
       } catch (err) {
         console.log(err);
@@ -90,6 +90,13 @@ module.exports = (io, gameContext) => {
   const addBet = async (player, betAmount) => {
     const gameBalance = await queryBalance(player);
     const newBalance = Number(gameBalance) - Number(betAmount);
+    if (newBalance < 0) {
+      io.emit("bet-confirmation", {
+        success: false,
+        address: player,
+      });
+      return false;
+    }
     await updatePlayerBalance(player, newBalance).then(async (success) => {
       if (await success) {
         if (
@@ -101,24 +108,27 @@ module.exports = (io, gameContext) => {
             null,
             null
           )
-        )
+        ) {
           io.emit("bet-confirmation", {
             success: true,
             address: player,
             balance: newBalance,
           });
-        else {
+          return true;
+        } else {
           await updatePlayerBalance(player, gameBalance);
           io.emit("bet-confirmation", {
             success: false,
             address: player,
           });
         }
-      } else
+      } else {
         io.emit("bet-confirmation", {
           success: false,
           address: player,
         });
+        return false;
+      }
     });
   };
 
