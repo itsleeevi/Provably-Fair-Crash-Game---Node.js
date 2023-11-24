@@ -1,12 +1,10 @@
 const {
   calculateCrashPoint,
-  generateCrashPoint,
   startTicking,
-  growthFunction,
   generateServerSeed,
   hashServerSeed,
 } = require("../utils/utils");
-const { insertRound, updateRound } = require("../service/history");
+const { insertRound } = require("../service/history");
 const { getBalanceOfContract } = require("../service/web3");
 const { sumBalances } = require("../service/players");
 
@@ -29,7 +27,6 @@ module.exports = function (io, gameContext) {
   }
 
   async function startBetting() {
-    console.log("startBetting");
     gameContext.currentBets = [];
     gameContext.resultTableArray = [];
     gameContext.serverSeed = generateServerSeed();
@@ -41,21 +38,20 @@ module.exports = function (io, gameContext) {
     const contractBalance = await getBalanceOfContract(
       gameContext.contractPolygon
     );
-    console.log("contractBalance: ", contractBalance);
     const totalBalance = await sumBalances();
+
     gameContext.maxCrashPoint = Number(contractBalance / totalBalance).toFixed(
       2
     );
-    console.log("maxCrashPoint: ", gameContext.maxCrashPoint);
     gameContext.crashPoint = calculateCrashPoint(
       gameContext.serverSeed,
       gameContext.nonce,
       gameContext.maxCrashPoint
     );
-    console.log("Calculated Crash Point:", gameContext.crashPoint);
 
     if (gameContext.maxCrashPoint > 1) {
       gameContext.currentRoundStartTime = Date.now();
+
       await insertRound(
         gameContext.currentRoundStartTime,
         gameContext.hashedServerSeed,
@@ -84,15 +80,12 @@ module.exports = function (io, gameContext) {
   }
 
   async function startPlaying() {
-    //console.log("startPlaying");
     if (gameContext.maxCrashPoint > 1) {
       gameContext.state = "PLAYING";
-
       gameContext.startTime = Date.now();
       gameContext.roundStartTimes.push(Date(gameContext.startTime));
 
       io.emit("currentState", gameContext.state);
-
       startTicking(gameContext, io, crash); // Handle the real-time progression
     } else {
       gameContext.state = "BETTING";
@@ -103,8 +96,6 @@ module.exports = function (io, gameContext) {
   }
 
   function crash(gameContext, io) {
-    console.log("crash");
-
     gameContext.chartArray = [];
 
     // Continue with the game loop for next round

@@ -5,8 +5,6 @@ const createMessage = async (req, res) => {
   const message = req.body.message;
   const date = Date.now();
 
-  //console.log("new message: ", message);
-
   try {
     if (await insertMessage(date, username, message))
       res.json({

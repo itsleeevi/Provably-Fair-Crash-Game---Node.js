@@ -2,11 +2,9 @@ require("dotenv").config();
 const { Web3 } = require("web3");
 const CONFIG = require("../config/config.json");
 const Crash = require("../artifacts/Crash.json");
-const Token = require("../artifacts/wGHOST.json");
 
 const {
   queryBalance,
-  queryUsername,
   updatePlayerBalance,
   insertPlayer,
   countAddress,

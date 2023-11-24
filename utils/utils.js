@@ -10,17 +10,21 @@ function hashServerSeed(seed) {
 }
 
 function calculateCrashPoint(serverSeed, nonce, maxMultiplier) {
-  // Hash the combined server seed and nonce
-  const hash = crypto
-    .createHash("sha256")
-    .update(`${serverSeed}-${nonce}`)
-    .digest("hex");
+  // Combine the server seed and nonce for hashing
+  const combinedSeed = `${serverSeed}-${nonce}`;
+  const hash = crypto.createHash("sha256").update(combinedSeed).digest("hex");
 
-  // Convert the hash to a number in the range [0, 1)
-  const hashFraction = parseInt(hash.slice(0, 10), 16) / 0xffffffffff;
+  // Use a portion of the hash (first 8 characters) and convert it to an integer
+  const int = parseInt(hash.substr(0, 8), 16);
 
-  // Scale the hash fraction to the range [1, maxMultiplier]
-  let crashPoint = 1 + hashFraction * (maxMultiplier - 1);
+  // Use the formula to calculate crash point with a house edge of 1%
+  // 2 ** 32 / (int + 1) gives a raw crash point
+  // Multiplying by (1 - houseEdge) applies the house edge
+  const houseEdge = 0.01;
+  let crashPoint = (2 ** 32 / (int + 1)) * (1 - houseEdge);
+
+  // Ensure the crash point is within the range [1, maxMultiplier]
+  crashPoint = Math.max(1, Math.min(crashPoint, maxMultiplier));
 
   return crashPoint.toFixed(2);
 }

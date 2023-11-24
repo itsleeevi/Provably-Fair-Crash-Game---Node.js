@@ -34,9 +34,6 @@ const addUsername = async (req, res) => {
   const address = req.body.address;
   const username = req.body.username;
 
-  //console.log("address: ", address);
-  //console.log("username: ", username);
-
   try {
     if (await updatePlayerUsername(address, username))
       res.json({
@@ -109,7 +106,7 @@ const checkUsernameExists = async (req, res) => {
       });
     } else {
       const username = await queryUsername(address);
-      //console.log("username: ", username);
+
       if (username !== null)
         res.json({
           username: username,
