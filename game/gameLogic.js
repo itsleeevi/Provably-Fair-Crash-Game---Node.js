@@ -29,6 +29,7 @@ module.exports = function (io, gameContext) {
   async function startBetting() {
     gameContext.currentBets = [];
     gameContext.resultTableArray = [];
+    io.emit("everyPlayer", gameContext.resultTableArray);
     gameContext.serverSeed = generateServerSeed();
     gameContext.hashedServerSeed = hashServerSeed(gameContext.serverSeed);
     gameContext.nonce =

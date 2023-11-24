@@ -14,9 +14,9 @@ module.exports = (io, gameContext) => {
       gameContext.resultTableArray.push(receivedUserData);
       io.sockets.emit("everyPlayer", gameContext.resultTableArray);
     });
+    socket.emit("everyPlayer", gameContext.resultTableArray);
 
     socket.on("messaging", (receivedMessage) => {
-      //console.log(receivedMessage);
       gameContext.latestChatMessages.push(receivedMessage);
       io.sockets.emit("messaging", receivedMessage);
     });
@@ -38,7 +38,6 @@ module.exports = (io, gameContext) => {
     });
 
     socket.on("cashout", async (receivedMessage) => {
-      console.log("cashout: ", receivedMessage);
       try {
         if (
           receivedMessage.address.toLowerCase() ===
@@ -137,14 +136,10 @@ module.exports = (io, gameContext) => {
       gameContext.currentRoundStartTime,
       player
     );
-    console.log("bet: ", betAmount);
 
     const gameBalance = await queryBalance(player);
-    console.log("gameBalance: ", gameBalance);
     const prize = (Number(betAmount) * Number(multiplier)).toFixed(2);
-    console.log("prize: ", prize);
     const newBalance = Number(gameBalance) + Number(prize);
-    console.log("newBalance: ", newBalance);
 
     await updatePlayerBalance(player, newBalance).then(async (success) => {
       if (await success) {

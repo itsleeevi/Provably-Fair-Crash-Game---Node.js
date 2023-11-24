@@ -139,7 +139,6 @@ const sumBalances = async () => {
   return await models.players
     .sum("balance")
     .then(async (totalBalance) => {
-      console.log("totalBalance: ", totalBalance);
       return await totalBalance;
     })
     .catch((err) => {
