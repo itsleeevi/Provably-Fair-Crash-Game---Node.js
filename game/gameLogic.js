@@ -41,9 +41,12 @@ module.exports = function (io, gameContext) {
     );
     const totalBalance = await sumBalances();
 
-    gameContext.maxCrashPoint = Number(contractBalance / totalBalance).toFixed(
-      2
-    );
+    if (totalBalance > 0)
+      gameContext.maxCrashPoint = Number(
+        contractBalance / totalBalance
+      ).toFixed(2);
+    else gameContext.maxCrashPoint = 100;
+
     gameContext.crashPoint = calculateCrashPoint(
       gameContext.serverSeed,
       gameContext.nonce,

@@ -20,7 +20,8 @@ const insertRound = async (
     .then(() => {
       return true;
     })
-    .catch(() => {
+    .catch((err) => {
+      console.log(err);
       return false;
     });
 };
